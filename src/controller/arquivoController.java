@@ -5,11 +5,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-/*de "strInstructionsIT":
-"<receita em italiano "
-
-até "strInstructionsZH-HANS"
-*/
 
 public class arquivoController implements IArquivosController {
 
@@ -24,13 +19,13 @@ public class arquivoController implements IArquivosController {
 
 		if (so.contains("Windows")) {
 			String caminho = "C:" + File.separator + "TEMP" + File.separator + "marg.json";
-			listaReceitas(caminho);
-		}
-		if (so.contains("Linux")) {
-			String caminho = File.separator + "tmp";
-			listaReceitas(caminho);
+			carregaReceitas(caminho);
 		}
 
+		if (so.contains("Linux")) {
+			String caminho = File.separator + "tmp" + File.separator + "marg.json";
+			carregaReceitas(caminho);
+		}
 	}
 
 	private String os() {
@@ -38,36 +33,47 @@ public class arquivoController implements IArquivosController {
 		return so;
 	}
 
-	private void listaReceitas(String caminho) throws IOException {
+	private void carregaReceitas(String caminho) throws IOException {
 
 		File arquivo = new File(caminho);
+
+		if (!arquivo.exists() || !arquivo.isFile()) {
+			throw new FileNotFoundException("Arquivo não encontrado: " + caminho);
+		}
 
 		BufferedReader br = new BufferedReader(new FileReader(arquivo));
 
 		String linha = br.readLine();
-		verificaLinha(linha);
-		
 
+		while (linha != null) {
+			carregaReceitasIt(linha);
+			linha = br.readLine();
+		}
 		br.close();
 	}
 
-	private void verificaLinha(String linha) {
+	private void carregaReceitasIt(String linha) throws IOException {
 
 		String[] vetLinha = linha.split("strInstructionsIT");
 
 		for (String frase : vetLinha) {
+		
+			
 			if (frase.contains("strInstructionsZH-HANS")) {
+			
+				
 				String[] receita = frase.split("strInstructionsZH-HANS");
-				String textoLimpo = receita[0].replaceAll("[:,\"]", "") // Substitui ":" e aspas po nada(remove)
+				String receitaLimpa = receita[0].replaceAll("[:,\"]", "") // Substitui ":" e aspas po nada(remove)
 						.replace("\\r\\n", "\n") // Substitui \r\n por quebra de linha
 						.trim(); // Remove espaços em excesso no início e fim
 
-				// Imprime o texto ajustado
-				System.out.printf("%s %n", textoLimpo);
-				System.out.println("_______________________________________________________________________________");
+       //				 Imprime o texto ajustado
+				System.out.println(receitaLimpa);
+
+				System.out.println("_______________________________________________________________________________________________________");
 			}
 		}
 
 	}
 }
-//}
+
